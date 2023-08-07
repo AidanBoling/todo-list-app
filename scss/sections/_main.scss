@@ -1,0 +1,11 @@
+@use '../custom' as *;
+@use '../components/mixins' as *;
+
+.btn.add-task {
+    @include btn-bg-lin-gradient;
+}
+
+.add-task-btn {
+    @include btn-bg-rad-gradient;
+}
+

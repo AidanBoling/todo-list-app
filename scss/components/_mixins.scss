@@ -1,0 +1,10 @@
+@use '../custom' as *;
+
+
+@mixin btn-bg-rad-gradient {
+    background: radial-gradient(rgba($secondary, .95), 30%, rgba($primary, .95));
+}
+
+@mixin btn-bg-lin-gradient {
+    background: linear-gradient(to bottom, rgba($secondary, .75), 90%, rgba($primary, .85));
+}
