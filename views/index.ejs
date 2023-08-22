@@ -4,32 +4,59 @@
 <div class="d-flex flex-column p-3 gap-4 py-md-4 align-items-center justify-content-center">
     <div class="task-list list-group gap-3 border-0">
         <% taskList.forEach(task => { %> 
+            <% if (!task.completed) { %>
+                <div class="task list-group-item d-flex align-items-center gap-3 py-3 rounded-2 shadow" id="<%= task.id %>">
+                    <form action="/complete" method="POST">
+                        <input class="form-check-input flex-shrink-0 my-1" type="checkbox" name="complete" value="<%= task.id %>" aria-label="task" style="font-size: 1.375em;" onChange="this.form.submit()">
+                    </form>
+                    <div class="form-checked-content d-flex align-items-center gap-2 w-100">
+                        <span class="me-auto title"><%= task.title %></span>
 
-        <div class="task list-group-item d-flex align-items-center gap-3 py-3 rounded-2 shadow">
-            <input class="form-check-input flex-shrink-0 my-1" id="task<%= task.id %>" type="checkbox" value="" aria-label="task" style="font-size: 1.375em;">
-            <div class="form-checked-content d-flex align-items-center gap-3 w-100">
-                <span class="me-auto"><%= task.title %></span>
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle pe-3 border-0" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></button>
-                    <ul class="p-4 py-2 dropdown-menu dropdown-menu-end">
-                        <!-- <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg> -->
-                        <li class="my-2"><span class="fs-6 me-4"><strong>Due</strong></span><span class=""><%= `${task.dateDue}` %></span></li>
-                        <li class="my-2"><span class="fs-6 me-4"><strong>Projects</strong></span><span class="">
-                            <% if (task.projects.length > 1) { %>
-                                <% const lastProject = task.projects.pop(); %>
-                                <% task.projects.forEach(taskProject => { %>
-                                <% const taskProjectsStr = `${taskProject}, `; %>
-                                <% task.projects.push(lastProject); %>
-                                <%= taskProjectsStr + lastProject %>
-                                <% }); %>
-                            <% } else { %>
-                                <%= `${task.projects}` %>
-                            <% }; %>
-                        </span></li>
-                    </ul>
+                        <button class="edit edit-task icon-btn" type="button" data-bs-toggle="modal" data-bs-target="#editTaskModal" aria-labelledby="editTaskButton" onclick="setEditTaskModal(this)">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle pe-3 border-0" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></button>
+                            <ul class="p-4 py-2 dropdown-menu dropdown-menu-end">
+                                <!-- <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg> -->
+                                <% if (task.startDate) {  %>                  
+                                    <li class="my-2"><span class="fs-6 me-4"><strong>Start</strong></span>
+                                        <span class="date-start" value="<%= `${task.startDate.toLocaleDateString()}` %>"><%= task.startDate.toLocaleDateString() %></span>
+                                    </li>
+                                <% } %>
+                                <% if (task.dueDate) {  %>                  
+                                    <li class="my-2"><span class="fs-6 me-4"><strong>Due</strong></span>
+                                        <span class="date-due" value="<%= `${task.dueDate.toLocaleDateString()}` %>"><%= task.dueDate.toLocaleDateString() %></span>
+                                    </li>
+                                <% } %>
+                                <li class="my-2">
+                                    <span class="fs-6 me-4"><strong>Projects</strong></span>
+                                    <span class="projects">
+                                    <% if (task.projects.length > 1) { %>
+                                        <% let taskProjects = []; %>                                        
+                                        <% task.projects.forEach(project => { taskProjects.push(project.name); }); %>
+                                        <%= taskProjects.join(', ') %>
+                                    <% } else { %>
+                                        <%= `${task.projects[0].name}` %>
+                                    <% }; %>
+                                    </span>
+                                </li>
+                                <% if (task.description) {  %>                  
+                                    <li class="my-2"><span class="fs-6 me-4"><strong>Notes</strong></span>
+                                        <span class="description"><%= task.description %></span>
+                                    </li>
+                                <% } %>
+                                <div class="delete-task">
+                                    <form action="/delete/task" method="POST">
+                                        <button class="icon-btn delete-task" type="submit" name="deleteTask" value="<%= task.id %>"><i class="bi bi-trash3-fill"></i></button>
+                                    </form>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            <% } %>    
         <% }); %>
         <div class="task add-task list-group-item d-flex align-items-center gap-3 py-3 border-0 rounded-2">
             <div class="col"><hr /></div>
@@ -44,6 +71,72 @@
         </div>
     </div>
 </div>
+
+<form action="/edit/task/" method="POST">
+
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModal" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-md-down" >
+            <div class="modal-content">
+
+                <div class="modal-header px-4">
+                    <div class="d-flex justify-content-center w-100">
+                        <h1 class="modal-title fs-2" id="editTaskModalLabel">Edit task</h1>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <div class="modal-body px-4">
+                        <div class="mb-4 mt-3">
+                            <label for="taskTitle" class="form-label fs-5">Title</label>
+                            <textarea class="form-control" id="taskTitle" name="title" rows="1"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskStart" class="form-label fs-5">Start Date </label>
+                            <input class="form-control taskStart" type="date" id="editTaskStart" name="startDate" value="" />
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskDue" class="form-label fs-5">Due Date </label>
+                            <input class="form-control" type="date" id="editTaskDue" name="dueDate" value="" />
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskProjects" class="form-label fs-5">Projects </label>
+                            <div class="dropend d-inline">
+                                <button class="btn dropdown-toggle pb-3 ms-1 fs-5" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-labelledby="selectProjectsDropdownMenu"></button>
+                                <ul class="dropdown-menu overflow-y-auto">
+                                <% projectList.forEach(project => { %>
+                                    <%# if(taskProjects.contains(project)) { %>
+                                        <!-- <li class="m-2">
+                                            <input class="project form-check-input m-1 p-2" type="checkbox" id="opt<%#= project.name %>" name="taskProjects" value="<%#= project.name %>" checked>
+                                            <label class="form-check-label" for="<%#= project.name %>Option"><%#= project.name %></label>
+                                        </li> -->
+                                    <%# } else { %>
+                                        <li class="m-2">
+                                            <input class="project opt-<%= project.name %> form-check-input m-1 p-2" type="checkbox" id="editOpt<%= project.name %>" name="taskProjects" value="<%= project.id %>" onclick="toggleEditTaskBadge(this)">
+                                            <label class="form-check-label" for="editOpt<%= project.name %>"><%= project.name %></label>
+                                        </li>
+
+                                    <% }); %>
+                                </ul>
+                            </div>
+                            <div class="selected d-flex gap-2 justify-content-start m-2 ms-1 mt-0 p-1" id="selectedEditTaskProjects">
+                                <%# task.projects.forEach(project => { %>
+                                <!-- <button class="project <%#= listView %> selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="selEdit<%#= listView %>" type="button" onclick="removeBadge(this)"><%#= listView %></button> -->
+                                <%# }); %>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskDecription" class="form-label fs-5">Notes</label>
+                            <textarea class="form-control" id="taskDecription" name="description" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                <div class="modal-footer px-4 d-flex justify-content-center">
+                    <button type="submit" class="add-task btn btn-primary btn-lg px-5">Save</button>
+                </div>
+        </div>
+    </div>
+
+</div>
+</form>
 
 <%- include('partials/footer.ejs') %>
 

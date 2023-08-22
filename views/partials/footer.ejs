@@ -16,59 +16,139 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 
     <script>
-        // Add cursor to Title field when new task dialog is opened 
         const addTaskModal = document.getElementById('addTaskModal');
         const newTaskTitle = document.getElementById('newTaskTitle');
+        const editTaskModal = document.getElementById('editTaskModal')
 
+        // Add cursor to Title field when new task dialog is opened 
         addTaskModal.addEventListener('shown.bs.modal', () => {
             newTaskTitle.focus()
         });
-
-        const projectOptions = document.querySelectorAll('.modal .dropdown-menu .project');
-        const projectsSelected = document.querySelectorAll('.modal .selected.project');
-
-        projectOptions.forEach(option => {
-            option.addEventListener('click', () => { 
-                toggleBadge(option.getAttribute('value'))
+            
+        editTaskModal.addEventListener('hide.bs.modal', () => {
+            // const projectsSection = document.getElementById('selectedEditTaskProjects');
+            const badges = editTaskModal.querySelectorAll('button.project');
+            const projectOptions = editTaskModal.querySelectorAll('input.project');
+            
+            // Un-check projects
+            projectOptions.forEach(option => {
+                if (option.checked === true) { option.checked = !option.checked; };
             });
+
+            // Clear badges when close edit task modal
+            if (badges.length > 0) { badges.forEach(badge => { badge.remove() }); }   
+            
+            //
         });
 
-        projectsSelected.forEach(selected => { addBadgeEventListeners(selected); });
+        // const projectOptions = document.querySelectorAll('.modal .dropdown-menu .project');
+        // const projectsSelected = document.querySelectorAll('.modal .selected.project');
 
-        function addBadgeEventListeners(selected) {
-            selected.addEventListener('click', () => { 
-                uncheckProject(selected.textContent); 
-                toggleBadge(selected.textContent);
-            });
-        };
 
-        function uncheckProject(projectName) {
-            const projectOption = document.getElementById(`opt${projectName}`);
+        function removeNewTaskBadge(element) {
+            uncheckNewTaskProject(element.textContent); 
+            element.remove();
+        }
+
+        function uncheckNewTaskProject(projectName) {
+            const projectOption = document.getElementById(`newOpt${projectName}`);
             if (projectOption.checked !== false) { 
                 projectOption.checked = !projectOption.checked;
              };
         };
 
-        function toggleBadge(projectName) {
+        function toggleNewTaskBadge(projectName) {
             const projectsSection = document.getElementById('selectedProjects');
             const badge = projectsSection.getElementsByClassName(`${projectName}`)[0]
 
-            if (badge) { 
-                badge.remove(); 
-            } 
+            if (badge) { badge.remove(); } 
             else { 
                 //add badge HTML
-                const badgeElement = `<button class="project ${projectName} selected me-1 py-2 btn bg-primary-subtle text-primary-emphasis rounded-pill fs-6" id="sel${projectName}" type="button">${projectName}</button>`;
+                const badgeElement = `<button class="project ${projectName} selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="newSel${projectName}" type="button">${projectName}</button>`;
                 projectsSection.insertAdjacentHTML('beforeend', badgeElement);
-                
-                //add event listener to badge
-                const newBadge = projectsSection.getElementsByClassName(`${projectName}`)[0]
-                addBadgeEventListeners(newBadge); 
             };               
         };
 
+        // Triggered from badge HTML tag via onclick
+        function removeEditBadge(element) {
+            uncheckEditTaskProject(element.textContent); 
+            element.remove();
+        }
+
+        function uncheckEditTaskProject(projectName) {
+            const projectOption = document.getElementById(`editOpt${projectName}`);
+            if (projectOption.checked !== false) { 
+                projectOption.checked = !projectOption.checked;
+             };
+        };
+
+        // Triggered from the projects dropdown HTML via onclick
+        function toggleEditTaskBadge(element) {
+            const projectsSection = document.getElementById('selectedEditTaskProjects');
+            const badge = document.getElementById(`editSel${element.value}`)
+            const projectName = element.id.slice(7);
+            console.log(badge);
+
+            if (badge) { badge.remove(); } 
+            else { 
+                //add badge HTML
+                const badgeElement = `<button class="project ${projectName} selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="editSel${element.value}" type="button" onclick="removeEditBadge(this)">${projectName}</button>`;
+                projectsSection.insertAdjacentHTML('beforeend', badgeElement);
+            }               
+        };
+
+        function setEditTaskModal(element) {
+            const taskID = element.parentElement.parentElement.getAttribute('id');
+            const taskElement = document.getElementById(taskID);
+            const taskTitle = taskElement.querySelector('span.title').innerText;            
+            const taskDueElement = taskElement.querySelector('span.date-due');
+            const taskStartElement = taskElement.querySelector('span.date-start');
+            const taskProjects = taskElement.querySelector('span.projects').innerText.trim();
+            // console.log(taskProjects);
+            
+            editTaskModal.parentElement.setAttribute('action', `/edit/task/${taskID}`);
+
+            if (taskTitle) { editTaskModal.querySelector('#taskTitle').innerText = taskTitle; }
+            
+            if (taskStartElement) { 
+                const dateFromTask = taskStartElement.innerText;
+                const d = new Date(dateFromTask);
+                const date = dayjs(d).format('YYYY-MM-DD')
+                console.log(date);
+
+                editTaskModal.querySelector('#editTaskStart').value = date; 
+            }
+            if (taskDueElement) { 
+                const dateFromTask = taskDueElement.innerText;
+                const d = new Date(dateFromTask);
+                const date = dayjs(d).format('YYYY-MM-DD')
+                console.log(date);
+
+                editTaskModal.querySelector('#editTaskDue').value = date; 
+            }
+
+            if (taskProjects) {
+                const projectsSection = document.getElementById('selectedEditTaskProjects');
+
+                let projects = taskProjects.split(', ');
+                console.log(projects);
+
+                projects.forEach(project => {
+                    // Check the boxes in the projects list for each current project
+                    const projectOption = document.getElementById(`editOpt${project}`);
+                    console.log(projectOption);
+
+                    if (projectOption.checked !== true) { projectOption.checked = !projectOption.checked; };
+
+                    // Add a badge for each current project
+                    const badgeElement = `<button class="project ${project} selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="editSel${projectOption.value}" type="button" onclick="removeEditBadge(this)">${project}</button>`;
+                    projectsSection.insertAdjacentHTML('beforeend', badgeElement);
+                });
+            }
+        }
     </script>
 
 </body>

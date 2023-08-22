@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Done</title>
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oooh+Baby&family=Hind+Vadodara:wght@300;400;500&family=M+PLUS+1p:wght@300;400;500;700&family=Nunito+Sans:ital,wght@0,200;0,400;0,500;0,600;1,200;1,400;1,500;1,600&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500;1,600&family=Tajawal:wght@200;300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oooh+Baby&family=M+PLUS+1p:wght@300;400;500;700&family=Nunito+Sans:ital,wght@0,200;0,400;0,500;0,600;1,200;1,400;1,500;1,600&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500;1,600&family=Tajawal:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -34,7 +35,7 @@
                     
                         <form action="/select-view" method="POST" class="project-list dropdown-menu dropdown-menu-end w-100 shadow border-0">
                         <% projectList.forEach(project => { %>
-                                <input class="dropdown-item m-0 p-0" type="submit" id="<%= project%>View" name="projectList" value="<%= project%>">
+                                <input class="dropdown-item m-0 p-0" type="submit" id="<%= project.name %>View" name="projectList" value="<%= project.name %>">
                         <% }); %>
                         </form>
                     </div>
@@ -50,7 +51,7 @@
             </button>
 
             </div>
-            <form action="/add-task" method="POST">
+            <form action="/create/task" method="POST">
 
                 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModal" aria-hidden="true">
                     <div class="modal-dialog modal-fullscreen-md-down">
@@ -76,25 +77,25 @@
                                     <label for="newTaskProjects" class="form-label fs-4">Projects </label>
                                     <div class="dropend d-inline">
                                         <button class="btn dropdown-toggle pb-3 ms-1 fs-4" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-labelledby="selectProjectsDropdownMenu"></button>
-                                        <ul class="dropdown-menu overflow-y-auto">
+                                        <ul class="project-selector dropdown-menu overflow-y-auto">
                                         <% projectList.forEach(project => { %>
-                                        <% if(project === listView) { %>
+                                        <% if(project.name === listView) { %>
 
                                             <li class="m-2">
-                                                <input class="project form-check-input m-1 p-2" type="checkbox" id="opt<%= project%>" name="newTaskProjects" value="<%= project%>" checked>
-                                                <label class="form-check-label" for="<%= project%>Option"><%= project%></label>
+                                                <input class="project form-check-input m-1 p-2" type="checkbox" id="newOpt<%= project.name %>" name="newTaskProjects" value="<%= project.name %>" onclick="toggleNewTaskBadge(this.value)" checked>
+                                                <label class="form-check-label" for="opt<%= project.name %>New"><%= project.name %></label>
                                             </li>
                                         <% } else { %>
                                             <li class="m-2">
-                                                <input class="project form-check-input m-1 p-2" type="checkbox" id="opt<%= project%>" name="newTaskProjects" value="<%= project%>">
-                                                <label class="form-check-label" for="opt<%= project%>"><%= project%></label>
+                                                <input class="project form-check-input m-1 p-2" type="checkbox" id="newOpt<%= project.name %>" name="newTaskProjects" value="<%= project.name %>" onclick="toggleNewTaskBadge(this.value)">
+                                                <label class="form-check-label" for="newOpt<%= project.name %>"><%= project.name %></label>
                                             </li>
 
                                         <%} }); %>
                                         </ul>
                                     </div>
                                     <div class="selected d-flex gap-2 justify-content-start m-2 ms-1 mt-0 p-1" id="selectedProjects">
-                                        <button class="project <%= listView %> selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="sel<%= listView %>" type="button"><%= listView %></button>
+                                        <button class="project <%= listView %> selected me-1 py-2 btn bg-primary-subtle rounded-pill fs-6" id="newSel<%= listView %>" type="button" onclick="removeNewTaskBadge(this)"><%= listView %></button>
 
                                     </div>
                                 </div>

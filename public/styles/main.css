@@ -49,8 +49,6 @@ font-family: 'M PLUS 1p', sans-serif !important;
 /* font-family: 'Nunito Sans', sans-serif;
 /* font-family: 'Sarabun', sans-serif; */
 /* font-family: 'Tajawal', sans-serif !important; */
-/* font-family: 'Zen Kaku Gothic New', sans-serif; */
-
 }
 
 /* GENERAL */
@@ -219,7 +217,8 @@ text-align: center;
     opacity: .5;
     text-decoration: line-through !important;
 }
-  
+
+
   /* .form-check-input-placeholder {
     border-style: dashed;
     border-width: 0;
@@ -319,7 +318,41 @@ text-align: center;
     --bs-form-check-bg: var(--bs-tertiary-bg);
     border-width: calc(var(--bs-border-width) + 1px);
     border-color: var(--bs-secondary-bg);
+    
 }
+.task-list .task .form-check-input:hover {cursor: pointer;}
+
+.task .bi {
+color: var(--bs-tertiary-color);
+/* cursor: pointer; */
+}
+
+button.icon-btn { 
+    background: transparent;
+    border-width: 0; 
+}
+
+button.edit-task, button.delete-task {
+    background: transparent;
+    border-width: 0;
+    color: var(--bs-tertiary-color)
+}
+
+button.icon-btn, button.edit-task:hover, button.delete-task:hover { color: var(--bs-secondary-color); }
+
+/* .task .bi:hover {
+    color: var(--bs-secondary-color);
+}
+
+.task .bi {
+    color: var(--bs-tertiary-color);
+    cursor: pointer;
+    }
+    
+.task .bi:hover {
+    color: var(--bs-secondary-color);
+} */
+
 
 .task .dropdown-menu {
     --bs-dropdown-link-hover-bg: var(--bs-dropdown-bg);
@@ -341,6 +374,22 @@ text-align: center;
     min-height: 40px;
     max-height: 50px;
 }
+
+div.delete-task {
+    padding-top: .25rem;
+    border-top: 1px solid var(--bs-secondary-bg);
+    display: flex;
+    /* justify-content: flex-end; */
+    position: relative;
+
+}
+
+
+
+/* FOOTER */
+
+
+
 
 
 

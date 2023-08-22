@@ -1,0 +1,8 @@
+{
+    "editor.quickSuggestions": {
+        "other": "off"
+    },
+    "javascript.validate.enable": true,
+    "javascript.suggest.paths": true,
+    "javascript.suggest.names": true
+}
